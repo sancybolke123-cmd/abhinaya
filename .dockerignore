@@ -1,0 +1,6 @@
+.git
+.gitignore
+*.py
+*.log
+*.tmp
+node_modules

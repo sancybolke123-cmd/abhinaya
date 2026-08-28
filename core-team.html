@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Team - Abhinayaa Institute of Research & Fine Arts</title>
+    <meta name="description" content="Expert team building strong foundation in arts and culture.">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+        }
+        /* Ambient Glows */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 480px;
+            height: 480px;
+            background: #d4af37;
+            border-radius: 50%;
+            filter: blur(190px);
+            top: -150px;
+            left: -100px;
+            opacity: 0.18;
+            z-index: -1;
+            animation: pulseGlow 10s ease-in-out infinite alternate;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            background: #8b0000;
+            border-radius: 50%;
+            filter: blur(190px);
+            right: -100px;
+            bottom: -100px;
+            opacity: 0.16;
+            z-index: -1;
+            animation: pulseGlow 12s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.15; }
+            100% { transform: scale(1.15) translate(30px, 20px); opacity: 0.22; }
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 70px;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(15px);
+            z-index: 999;
+        }
+        .logo { display: flex; align-items: center; font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700; color: #d4af37; text-decoration: none; }
+        nav ul { display: flex; gap: 30px; list-style: none; align-items: center; }
+        nav ul li a { color: white; text-decoration: none; transition: 0.3s; font-weight: 500; }
+        nav ul li a:hover { color: #d4af37; }
+        
+        .dropdown { position: relative; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: rgba(10, 10, 10, 0.95);
+            min-width: 220px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+        }
+        .dropdown:hover .dropdown-content { display: block; }
+        
+        /* Hero Section with Parallax Depth */
+        .hero {
+            height: 55vh;
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.85)), url('https://abhinayaainstitute.org/wp-content/uploads/2026/03/AIRF-Core-Team-Banner.jpg') center/cover no-repeat;
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, #0a0a0a, transparent);
+            pointer-events: none;
+        }
+        .hero-content h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4.2rem;
+            color: #d4af37;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 15px rgba(0,0,0,0.9);
+            letter-spacing: 3px;
+            animation: heroTitleFade 1.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+        .hero-content p {
+            color: #f0f0f0;
+            font-size: 1.25rem;
+            max-width: 680px;
+            margin: auto;
+            text-shadow: 1px 1px 10px rgba(0,0,0,0.8);
+            letter-spacing: 0.5px;
+            animation: heroTextFade 1.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+        @keyframes heroTitleFade {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes heroTextFade {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Team Overview Section */
+        .team-intro-section {
+            padding: 90px 8% 40px;
+            max-width: 1400px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 60px;
+            align-items: start;
+        }
+        .intro-left {
+            position: sticky;
+            top: 120px;
+        }
+        .intro-left h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.2rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            position: relative;
+            display: inline-block;
+        }
+        .intro-left h2::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #d4af37, #8b0000);
+            bottom: -8px;
+            left: 0;
+            border-radius: 2px;
+        }
+        .intro-left p.lead-text {
+            color: #ccc;
+            font-size: 1.08rem;
+            line-height: 1.85;
+            margin-top: 15px;
+            margin-bottom: 35px;
+        }
+        
+        /* Founder Quote Box with Hover Glow */
+        .founder-quote-box {
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 4px solid #d4af37;
+            border-radius: 0 20px 20px 0;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(212,175,55,0.18);
+            border-bottom: 1px solid rgba(212,175,55,0.18);
+            border-right: 1px solid rgba(212,175,55,0.18);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-left-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .founder-quote-box:hover {
+            transform: translateX(6px);
+            border-left-color: #f8d76d;
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.15);
+        }
+        .founder-quote-box blockquote {
+            font-style: italic;
+            color: #f0f0f0;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .founder-profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .founder-avatar {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 18px rgba(212,175,55,0.35);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .founder-quote-box:hover .founder-avatar {
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 0 25px rgba(212,175,55,0.6);
+        }
+        .founder-info h4 {
+            font-family: 'Cinzel', serif;
+            color: #f8d76d;
+            font-size: 1.15rem;
+            margin-bottom: 3px;
+        }
+        .founder-info span {
+            color: #bbb;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+
+        /* Team Cards & Beautiful Interactive Transitions */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+        }
+        
+        .team-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.5s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.5s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        .team-card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .team-card:hover {
+            transform: translateY(-12px) scale(1.01);
+            border-color: #d4af37;
+            box-shadow: 0 20px 45px rgba(212, 175, 55, 0.2), 0 5px 15px rgba(0,0,0,0.8);
+        }
+
+        /* Image Wrapper with Layered Transitions */
+        .member-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            overflow: hidden;
+            background: #151515;
+        }
+        .member-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            filter: brightness(0.95) contrast(1.05);
+            transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), filter 0.5s ease;
+        }
+        .team-card:hover .member-img-wrapper img {
+            transform: scale(1.09);
+            filter: brightness(1.05) contrast(1.1);
+        }
+
+        /* Dark-to-Gold Ambient Overlay */
+        .img-overlay-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(10,10,10,0.85) 100%);
+            transition: opacity 0.4s ease;
+            z-index: 2;
+        }
+        .team-card:hover .img-overlay-glow {
+            background: linear-gradient(180deg, rgba(212,175,55,0.08) 0%, rgba(10,10,10,0.92) 100%);
+        }
+
+        /* Dynamic Light Shimmer Sweep on Hover */
+        .img-shimmer-sweep {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                rgba(255, 255, 255, 0) 20%,
+                rgba(255, 255, 255, 0.25) 50%,
+                rgba(255, 255, 255, 0) 80%
+            );
+            transform: skewX(-25deg);
+            transition: left 0.85s ease;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .team-card:hover .img-shimmer-sweep {
+            left: 150%;
+        }
+
+        /* Circular Lens / View Badge Indicator */
+        .card-icon-lens {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 55px;
+            height: 55px;
+            background: rgba(212, 175, 55, 0.3);
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transform: translate(-50%, -50%) scale(0.6);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 4;
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+        .team-card:hover .card-icon-lens {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Member Details & Text Transitions */
+        .member-details {
+            padding: 24px 22px;
+            text-align: left;
+            background: linear-gradient(180deg, rgba(20,20,20,0.7), rgba(10,10,10,0.98));
+            border-top: 1px solid rgba(212,175,55,0.18);
+            position: relative;
+            z-index: 5;
+        }
+        .member-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: #ffffff;
+            margin-bottom: 6px;
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+            display: inline-block;
+        }
+        .member-name::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: #d4af37;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .team-card:hover .member-name {
+            color: #f8d76d;
+            transform: translateX(4px);
+        }
+        .team-card:hover .member-name::after {
+            transform: scaleX(1);
+        }
+
+        .member-role-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 4px;
+            transition: transform 0.3s ease;
+        }
+        .team-card:hover .member-role-badge {
+            transform: translateX(4px);
+        }
+        .role-text {
+            font-size: 0.9rem;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .team-card:hover .role-text {
+            background: linear-gradient(135deg, #d4af37, #f8d76d);
+            color: #0a0a0a;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+        }
+
+        .footer {
+            background: #5b180f;
+            padding: 50px 8% 20px;
+            margin-top: 80px;
+        }
+
+        @media (max-width: 1024px) {
+            .team-intro-section {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+            .intro-left {
+                position: static;
+            }
+            .hero-content h1 {
+                font-size: 3.2rem;
+            }
+        }
+    </style>
+
+<style>
+/* Global Premium Transitions Override */
+nav {
+    transform: translateY(-100%);
+    animation: slideDown 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards !important;
+}
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+nav ul li a {
+    position: relative;
+    padding-bottom: 5px;
+    transition: color 0.3s !important;
+}
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #d4af37;
+    transform-origin: bottom right;
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+nav ul li a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+.dropdown-content {
+    display: block !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), visibility 0.4s !important;
+    top: 105% !important;
+}
+.dropdown:hover .dropdown-content {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+footer.footer {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1), transform 1s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+}
+footer.footer.active {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+</style>
+</head>
+<body>
+<nav>
+    <a href="home.html" class="logo">
+        <img src="https://abhinayaainstitute.org/wp-content/uploads/2025/10/AIRF-Favicon.png" alt="Abhinaya Logo" style="max-width:70px !important;">
+    </a>
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li class="dropdown">
+            <a href="#">About ▼</a>
+            <div class="dropdown-content">
+                <a href="guru.html">Our guru</a>
+                <a href="about.html">The institute</a>
+            </div>
+        </li>
+<li><a href="gallery.html">Gallery</a></li>
+        <li class="dropdown">
+            <a href="#">Students ▼</a>
+            <div class="dropdown-content">
+                <a href="The Bharatanatyam Learning Compendium.pdf" target="_blank">E-Book</a>            
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeoto6_5Cs139HBzN0_7P20A8oqpkJ3sCaSuMCh--0_UjTdkQ/viewform?usp=dialog">Online Admission 2026-27</a>
+                <a href="core-team.html">Core Team</a>
+                <a href="ACADEMIC CALENDAR.pdf" target="_blank">Academic Calendar</a>
+                <a href="examinations.html">Examinations</a>
+                <a href="events-workshops.html">Events & Workshops</a>
+            </div>
+        </li>
+        <li><a href="student-portal.php">Students Portal</a></li>
+        <li><a href="contact.html">Contact</a></li>
+    </ul>
+</nav>
+
+<!-- Hero Banner with Cinematic Reveal -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="page-title">Core Team</h1>
+        <p>Expert team building a strong foundation in arts and culture.</p>
+    </div>
+</section>
+
+<!-- Main Content Area -->
+<section class="team-intro-section">
+    <!-- Left Column: Intro & Founder's Quote -->
+    <div class="intro-left">
+        <h2>Meet The Team</h2>
+        <p class="lead-text">
+            We’re a multidisciplinary team rooted in tradition with a passion for nurturing artistic excellence. We work with students and communities to preserve culture and inspire meaningful creative journeys.
+        </p>
+        
+        <div class="founder-quote-box">
+            <blockquote>
+                &#8220;Art is discipline, devotion, and a lifelong journey of inner transformation through tradition and expression.&#8221;
+            </blockquote>
+            <div class="founder-profile">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/03/Guruma-300x168.png" alt="Dr. Chitra Vishwanathan" class="founder-avatar">
+                <div class="founder-info">
+                    <h4>Dr. Chitra Vishwanathan</h4>
+                    <span>Founder of AIRF</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Animated Team Members Grid -->
+    <div class="team-grid">
+        
+        <div class="team-card reveal-card" style="transition-delay: 0.1s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/03/MEENA-SANTOSH-SECRETARY.jpg" alt="Meena Santhosh" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Meena Santhosh</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Secretary</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.2s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/03/SNEHA-ANUJAN-JOINT-SECRETARY.jpg" alt="Sneha Anujan" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Sneha Anujan</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Joint Secretary</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.3s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/04/Renjini.jpg" alt="Renjini Raghavan" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Renjini Raghavan</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Educator</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.4s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/04/Varsha-Vishwanath.jpg" alt="Varsha Vishwanathan" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Varsha Vishwanathan</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Educator</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.1s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/04/Priya.jpg" alt="Priya Premakumari" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Priya Premakumari</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Educator</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.2s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/04/Sagar.jpg" alt="Sagar Gurav" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Sagar Gurav</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Educator</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.3s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/03/PRATHAMESH-PENDHARI-ADMIN.jpg" alt="Prathamesh Pendhari" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Prathamesh Pendhari</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Admin</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="team-card reveal-card" style="transition-delay: 0.4s;">
+            <div class="member-img-wrapper">
+                <img src="https://abhinayaainstitute.org/wp-content/uploads/2026/03/KOMAL-PARAB-MARKETING-EXECUTIVE.jpg" alt="Komal Parab" loading="lazy">
+                <div class="img-overlay-glow"></div>
+                <div class="img-shimmer-sweep"></div>
+                <div class="card-icon-lens">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </div>
+            <div class="member-details">
+                <h3 class="member-name">Komal Parab</h3>
+                <div class="member-role-badge">
+                    <span class="role-text">Marketing Executive</span>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</section>
+
+<footer class="footer" style="background: #5b180f; padding: 50px 8% 20px;">
+    <div class="footer-container" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 40px;">
+        <div class="footer-left" style="text-align: left;">
+            <img src="https://abhinayaainstitute.org/wp-content/uploads/2025/10/AIRF-Favicon.png" alt="AIRF Logo" style="width: 50px; margin-bottom: 15px;">
+            <h2 style="font-family: 'Cinzel', serif; font-size: 2rem; color: white; margin: 0;">Art. Discipline. Devotion.</h2>
+        </div>
+        <div class="footer-links" style="display: flex; gap: 80px; text-align: left;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <a href="home.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Home</a>
+                <a href="about.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">About</a>
+                <a href="guru.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Our Guru</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <a href="gallery.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Gallery</a>
+                <a href="events-workshops.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Events</a>
+                <a href="contact.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Contact</a>
+                <a href="examinations.html" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 3px; font-size: 1rem;">Examinations</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom" style="display: flex; justify-content: space-between; align-items: center; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+        <p style="color: white; margin: 0; font-size: 0.9rem;">&copy;2026 AIRF. All rights reserved.</p>
+        <div class="social-icons" style="display: flex; gap: 15px;">
+            <a href="https://www.instagram.com/abhinayaa_dance_institute" target="_blank" style="width: 35px; height: 35px; border-radius: 50%; background: white; color: #5b180f; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.1rem;"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/abhinayaainstitute/" target="_blank" style="width: 35px; height: 35px; border-radius: 50%; background: white; color: #5b180f; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.1rem;"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.youtube.com/@Abhinayaa_dance_institute" target="_blank" style="width: 35px; height: 35px; border-radius: 50%; background: white; color: #5b180f; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.1rem;"><i class="fab fa-youtube"></i></a>
+            <a href="#" style="width: 35px; height: 35px; border-radius: 50%; background: white; color: #5b180f; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.1rem;"><i class="fas fa-chevron-up"></i></a>
+        </div>
+    </div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var revealElements = document.querySelectorAll(".reveal-card, footer");
+    var observer = new IntersectionObserver(function(entries, observer) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { rootMargin: "0px 0px -40px 0px" });
+    
+    revealElements.forEach(function(el) {
+        observer.observe(el);
+    });
+});
+</script>
+
+<!-- AI Chat Widget -->
+<!-- AI Chat Widget -->
+<div id="ai-chat-widget-container">
+    <!-- Floating Chat Trigger Button -->
+    <button id="ai-chat-toggle" aria-label="Open AI Assistant" title="Need help? Ask Abhinaya AI">
+        <i class="fa fa-comments" id="chat-icon-open"></i>
+        <i class="fa fa-times" id="chat-icon-close" style="display: none;"></i>
+        <span class="chat-badge">AI</span>
+    </button>
+
+    <!-- Chat Window Modal -->
+    <div id="ai-chat-window">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar">
+                    <img src="https://abhinayaainstitute.org/wp-content/uploads/2025/10/AIRF-Favicon.png" alt="AI Avatar">
+                    <span class="status-dot"></span>
+                </div>
+                <div>
+                    <h4>Abhinaya AI Assistant</h4>
+                    <p class="status-text">Online • Classical Support</p>
+                </div>
+            </div>
+            <button id="ai-chat-close" title="Close Chat">&times;</button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-msg">
+                <div class="msg-content">
+                    Namaste! 🙏 I am your <strong>Abhinaya Virtual Assistant</strong>. How can I help you navigate our classical dance portal today?
+                </div>
+            </div>
+            
+            <div class="quick-chips" id="quick-chips">
+                <button onclick="sendQuickMessage('What courses and syllabus are offered?')">🎭 Courses</button>
+                <button onclick="sendQuickMessage('How to pay annual course fees?')">💳 Fee Payment</button>
+                <button onclick="sendQuickMessage('How to register a new account?')">📝 Registration</button>
+                <button onclick="sendQuickMessage('How to login or reset password?')">🔑 Login / Password</button>
+                <button onclick="sendQuickMessage('Examination and attendance rules')">📅 Exams & Schedule</button>
+            </div>
+        </div>
+
+        <div class="chat-typing-indicator" id="chat-typing" style="display: none;">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about courses, fees, portal..." autocomplete="off">
+            <button id="chat-send-btn" title="Send Message">
+                <i class="fa fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* AI Chatbot Styles */
+#ai-chat-widget-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 99999;
+    font-family: 'Poppins', sans-serif;
+}
+
+#ai-chat-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4af37, #8b0000);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+#ai-chat-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 30px rgba(212, 175, 55, 0.6);
+}
+
+.chat-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #4cd137;
+    color: black;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid white;
+    letter-spacing: 0.5px;
+}
+
+#ai-chat-window {
+    display: none;
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    width: 380px;
+    height: 520px;
+    max-height: 80vh;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    flex-direction: column;
+    overflow: hidden;
+    animation: chatPopUp 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes chatPopUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chat-header {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.9), rgba(20, 20, 20, 0.9));
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-avatar {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d4af37;
+}
+
+.chat-avatar img {
+    width: 26px;
+    height: 26px;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    background: #4cd137;
+    border-radius: 50%;
+    border: 2px solid #0f0f0f;
+}
+
+.chat-header h4 {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    color: #f8d76d;
+    font-size: 1.05rem;
+}
+
+.status-text {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #bbb;
+}
+
+#ai-chat-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+#ai-chat-close:hover {
+    color: #ff6b6b;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 5px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+}
+
+.message {
+    display: flex;
+    max-width: 88%;
+}
+
+.bot-msg {
+    align-self: flex-start;
+}
+
+.user-msg {
+    align-self: flex-end;
+}
+
+.msg-content {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.bot-msg .msg-content {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f0f0f0;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-top-left-radius: 2px;
+}
+
+.user-msg .msg-content {
+    background: linear-gradient(135deg, #d4af37, #f8d76d);
+    color: black;
+    font-weight: 500;
+    border-top-right-radius: 2px;
+}
+
+.quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.quick-chips button {
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    color: #f8d76d;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.quick-chips button:hover {
+    background: #d4af37;
+    color: black;
+}
+
+.chat-typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    width: fit-content;
+    border-radius: 12px;
+    margin: 0 16px 8px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #d4af37;
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+.chat-input-area {
+    padding: 12px 16px;
+    background: rgba(10, 10, 10, 0.95);
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 25px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chat-input-area input:focus {
+    border-color: #d4af37;
+}
+
+.chat-input-area button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d4af37, #f8d76d);
+    border: none;
+    color: black;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    font-size: 0.95rem;
+}
+
+.chat-input-area button:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 480px) {
+    #ai-chat-window {
+        width: calc(100vw - 30px);
+        right: -10px;
+        bottom: 70px;
+        height: 480px;
+    }
+}
+</style>
+
+<script>
+(function() {
+    const toggleBtn = document.getElementById('ai-chat-toggle');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const chatWindow = document.getElementById('ai-chat-window');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+    const typingIndicator = document.getElementById('chat-typing');
+    const iconOpen = document.getElementById('chat-icon-open');
+    const iconClose = document.getElementById('chat-icon-close');
+
+    if (!toggleBtn || !chatWindow) return;
+
+    function toggleChat() {
+        const isOpen = chatWindow.style.display === 'flex';
+        if (isOpen) {
+            chatWindow.style.display = 'none';
+            iconOpen.style.display = 'block';
+            iconClose.style.display = 'none';
+        } else {
+            chatWindow.style.display = 'flex';
+            iconOpen.style.display = 'none';
+            iconClose.style.display = 'block';
+            chatInput.focus();
+        }
+    }
+
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
+
+    function appendMessage(sender, htmlContent) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}-msg`;
+        msgDiv.innerHTML = `<div class="msg-content">${htmlContent}</div>`;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    window.sendQuickMessage = function(text) {
+        chatInput.value = text;
+        sendMessage();
+    };
+
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        appendMessage('user', text);
+        chatInput.value = '';
+        typingIndicator.style.display = 'flex';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        fetch('chatbot_api.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+            typingIndicator.style.display = 'none';
+            if (data && data.response) {
+                appendMessage('bot', data.response);
+            } else {
+                appendMessage('bot', 'I apologize, I encountered a brief glitch. Please try again!');
+            }
+        })
+        .catch(err => {
+            typingIndicator.style.display = 'none';
+            appendMessage('bot', 'You can navigate to our <a href="courses.php" style="color:#d4af37; text-decoration:underline;">Courses Page</a> or <a href="contact.php" style="color:#d4af37; text-decoration:underline;">Contact Page</a> for direct assistance.');
+        });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+})();
+</script>
+<!-- End AI Chat Widget -->
+</body>
+</html>
