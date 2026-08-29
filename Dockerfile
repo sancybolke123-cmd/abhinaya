@@ -10,7 +10,7 @@ RUN a2enmod rewrite
 COPY . /var/www/html/
 
 # Set DirectoryIndex so home.html is the default homepage
-RUN echo "DirectoryIndex home.html index.php index.html" >> /etc/apache2/apache2.conf
+RUN echo "DirectoryIndex home.html index.php index.html" > /etc/apache2/mods-enabled/dir.conf
 
 # Ensure uploads directory exists and has proper permissions
 RUN mkdir -p /var/www/html/uploads \
