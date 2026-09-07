@@ -2,6 +2,16 @@
 session_start();
 require 'db.php';
 
+// Ensure payments table exists in live/cloud DB
+mysqli_query($conn, "CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    course VARCHAR(100) NOT NULL,
+    payment_receipt VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
 $message = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name']));
@@ -328,7 +338,7 @@ footer.footer.active {
     <?php echo $message; ?>
     
     <div class="form-container" style="background:rgba(255,255,255,.05); backdrop-filter:blur(15px); padding:40px; border-radius:25px; border:1px solid rgba(212,175,55,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
-        <form action="fee-payment.php" method="POST" id="fee-form">
+        <form action="" method="POST" id="fee-form">
             <div class="form-group" style="margin-bottom: 20px;">
                 <label for="full_name" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Full Name *</label>
                 <input type="text" id="full_name" name="full_name" required placeholder="Enter student full name">
