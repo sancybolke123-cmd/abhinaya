@@ -18,7 +18,17 @@ mysqli_query($conn, "CREATE TABLE IF NOT EXISTS payments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 
-// Safely alter table to add any missing columns in existing deployments
+// Safely check and add any missing columns in existing deployments
+$existing_cols = [];
+try {
+    $res = mysqli_query($conn, "SHOW COLUMNS FROM payments");
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $existing_cols[] = $row['Field'];
+        }
+    }
+} catch (Throwable $e) {}
+
 $cols = [
     "amount" => "VARCHAR(50) DEFAULT '0'",
     "txn_id" => "VARCHAR(100) DEFAULT ''",
@@ -28,7 +38,11 @@ $cols = [
     "status" => "VARCHAR(50) DEFAULT 'Verified'"
 ];
 foreach ($cols as $col => $type) {
-    @mysqli_query($conn, "ALTER TABLE payments ADD COLUMN $col $type");
+    if (!in_array($col, $existing_cols)) {
+        try {
+            mysqli_query($conn, "ALTER TABLE payments ADD COLUMN $col $type");
+        } catch (Throwable $e) {}
+    }
 }
 
 $message = "";
