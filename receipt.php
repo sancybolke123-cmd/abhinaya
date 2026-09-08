@@ -212,37 +212,58 @@ footer.footer.active {
 </nav>
 <div class="portal-wrapper">
     <div style="width: 100%; max-width: 600px; text-align: center;">
-        <h2 style="color: #4cd137; margin-bottom: 20px;"><i class="fa fa-check-circle"></i> Payment Successful!</h2>
+        <h2 style="color: #4cd137; margin-bottom: 20px;"><i class="fa fa-check-circle"></i> Fee Payment Verified & Recorded</h2>
         <div class="receipt-card">
             <div class="receipt-header">
                 <h2>Abhinaya Institute</h2>
-                <p>Fee Payment Receipt</p>
+                <p>Official Classical Bharatanatyam Fee Receipt</p>
+                <div style="margin-top: 10px;">
+                    <span style="background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">✓ VERIFIED UPI TRANSACTION</span>
+                </div>
             </div>
             
             <div class="receipt-row">
-                <span class="label">Date:</span>
+                <span class="label">Date & Time:</span>
                 <span class="value"><?php echo htmlspecialchars($receipt['date']); ?></span>
             </div>
             <div class="receipt-row">
-                <span class="label">Transaction ID:</span>
-                <span class="value"><?php echo htmlspecialchars($receipt['transaction_id']); ?></span>
+                <span class="label">Receipt No:</span>
+                <span class="value" style="font-family: monospace;"><?php echo htmlspecialchars($receipt['transaction_id']); ?></span>
             </div>
             <div class="receipt-row">
                 <span class="label">Student Name:</span>
                 <span class="value"><?php echo htmlspecialchars($receipt['name']); ?></span>
             </div>
+            <?php if (!empty($receipt['email'])): ?>
             <div class="receipt-row">
-                <span class="label">Course:</span>
+                <span class="label">Email Address:</span>
+                <span class="value"><?php echo htmlspecialchars($receipt['email']); ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="receipt-row">
+                <span class="label">Enrolled Course:</span>
                 <span class="value"><?php echo htmlspecialchars($receipt['course']); ?></span>
             </div>
+            <?php if (!empty($receipt['utr_number'])): ?>
+            <div class="receipt-row">
+                <span class="label">UPI Ref (UTR):</span>
+                <span class="value" style="color: #059669; font-family: monospace; font-weight: 700;"><?php echo htmlspecialchars($receipt['utr_number']); ?></span>
+            </div>
+            <?php endif; ?>
+            <?php if (!empty($receipt['payment_method'])): ?>
+            <div class="receipt-row">
+                <span class="label">Payment Mode:</span>
+                <span class="value"><?php echo htmlspecialchars($receipt['payment_method']); ?></span>
+            </div>
+            <?php endif; ?>
             
             <div class="receipt-total">
-                <span>Total Paid:</span>
+                <span>Total Amount Paid:</span>
                 <span>₹<?php echo htmlspecialchars($receipt['amount']); ?></span>
             </div>
             
             <button onclick="window.print()" class="btn-print"><i class="fa fa-print"></i> Print / Save as PDF</button>
-            <a href="login.php" class="login-btn">Proceed to Login</a>
+            <a href="login.php" class="login-btn">Proceed to Student Login</a>
         </div>
     </div>
 </div>

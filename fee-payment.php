@@ -2,80 +2,152 @@
 session_start();
 require 'db.php';
 
-// Ensure payments table exists in live/cloud DB
+// Ensure payments table exists with all required verification columns
 mysqli_query($conn, "CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     course VARCHAR(100) NOT NULL,
+    amount VARCHAR(50) DEFAULT '0',
+    txn_id VARCHAR(100) DEFAULT '',
+    utr_number VARCHAR(100) DEFAULT '',
+    payment_method VARCHAR(100) DEFAULT 'UPI',
+    screenshot_path VARCHAR(255) DEFAULT '',
+    status VARCHAR(50) DEFAULT 'Verified',
     payment_receipt VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 
+// Safely alter table to add any missing columns in existing deployments
+$cols = [
+    "amount" => "VARCHAR(50) DEFAULT '0'",
+    "txn_id" => "VARCHAR(100) DEFAULT ''",
+    "utr_number" => "VARCHAR(100) DEFAULT ''",
+    "payment_method" => "VARCHAR(100) DEFAULT 'UPI'",
+    "screenshot_path" => "VARCHAR(255) DEFAULT ''",
+    "status" => "VARCHAR(50) DEFAULT 'Verified'"
+];
+foreach ($cols as $col => $type) {
+    @mysqli_query($conn, "ALTER TABLE payments ADD COLUMN $col $type");
+}
+
 $message = "";
+$error_msg = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name']));
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $course = mysqli_real_escape_string($conn, trim($_POST['course']));
-    
+    $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name'] ?? ''));
+    $email = mysqli_real_escape_string($conn, trim($_POST['email'] ?? ''));
+    $phone = mysqli_real_escape_string($conn, trim($_POST['phone'] ?? ''));
+    $course = mysqli_real_escape_string($conn, trim($_POST['course'] ?? ''));
+    $payment_method = mysqli_real_escape_string($conn, trim($_POST['payment_method'] ?? 'UPI Transfer'));
+    $utr_number = mysqli_real_escape_string($conn, strtoupper(trim($_POST['utr_number'] ?? '')));
+    $confirm_paid = isset($_POST['confirm_paid']);
+
     // Extract fee from course value
     preg_match('/₹(\d+)/', $course, $matches);
     $fee = isset($matches[1]) ? $matches[1] : '0';
-    
-    $txn_id = 'TXN' . strtoupper(uniqid());
-    $date = date('Y-m-d H:i:s');
-    
-    $target_dir = "uploads/";
-    if (!is_dir($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
-    
-    $receipt_content = "<!DOCTYPE html>
+
+    if (empty($full_name) || empty($email) || empty($course)) {
+        $error_msg = "Please fill in all student details and select a course.";
+    } elseif (empty($utr_number) || strlen($utr_number) < 8) {
+        $error_msg = "Payment verification required: Please enter a valid 12-digit UPI Transaction / UTR Reference Number from your payment app.";
+    } elseif (!$confirm_paid) {
+        $error_msg = "Please check the confirmation box indicating you have completed the UPI transfer.";
+    } else {
+        // Check if UTR is already recorded to prevent duplicate submissions
+        $check_utr = mysqli_query($conn, "SELECT id FROM payments WHERE utr_number = '$utr_number'");
+        if ($check_utr && mysqli_num_rows($check_utr) > 0) {
+            $error_msg = "This UPI Transaction Reference Number (UTR #$utr_number) has already been submitted.";
+        } else {
+            $txn_id = 'AIRF-TXN-' . strtoupper(uniqid());
+            $date = date('Y-m-d H:i:s');
+            
+            $target_dir = "uploads/";
+            if (!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+
+            // Handle optional screenshot upload
+            $screenshot_path = "";
+            if (isset($_FILES['screenshot']) && $_FILES['screenshot']['error'] === UPLOAD_ERR_OK) {
+                $file_tmp = $_FILES['screenshot']['tmp_name'];
+                $file_ext = strtolower(pathinfo($_FILES['screenshot']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'pdf', 'webp'];
+                if (in_array($file_ext, $allowed)) {
+                    $screenshot_filename = $target_dir . "proof_" . time() . "_" . uniqid() . "." . $file_ext;
+                    if (move_uploaded_file($file_tmp, $screenshot_filename)) {
+                        $screenshot_path = $screenshot_filename;
+                    }
+                }
+            }
+
+            $receipt_content = "<!DOCTYPE html>
 <html>
 <head>
-    <title>Fee Receipt - $txn_id</title>
+    <meta charset='UTF-8'>
+    <title>Verified Fee Receipt - $txn_id</title>
+    <link href='https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap' rel='stylesheet'>
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #fafafa; padding: 40px; }
-        .receipt-card { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid #8b0000; }
-        h2 { color: #8b0000; text-align: center; margin-bottom: 5px; font-family: 'Cinzel', serif; }
-        p.subtitle { text-align: center; color: #666; margin-top: 0; }
-        .row { display: flex; justify-content: space-between; margin: 12px 0; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        .total { font-size: 1.3rem; font-weight: bold; color: #8b0000; border-top: 2px solid #8b0000; padding-top: 15px; margin-top: 15px; }
+        body { font-family: 'Poppins', sans-serif; background: #fafafa; padding: 40px 20px; color: #1e293b; }
+        .receipt-card { background: white; max-width: 580px; margin: auto; padding: 35px 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 6px solid #8b0000; position: relative; }
+        .header { text-align: center; border-bottom: 2px dashed #e2e8f0; padding-bottom: 20px; margin-bottom: 25px; }
+        .header h2 { color: #8b0000; font-family: 'Cinzel', serif; margin: 0 0 5px 0; font-size: 1.8rem; }
+        .header p { color: #64748b; margin: 0; font-size: 0.9rem; }
+        .badge { display: inline-block; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-top: 10px; }
+        .row { display: flex; justify-content: space-between; margin: 12px 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; font-size: 0.95rem; }
+        .row span:first-child { color: #64748b; }
+        .row strong { color: #0f172a; text-align: right; }
+        .total { font-size: 1.25rem; font-weight: bold; color: #8b0000; border-top: 2px solid #8b0000; border-bottom: none; padding-top: 15px; margin-top: 18px; }
+        .footer-note { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 25px; border-top: 1px dashed #e2e8f0; padding-top: 15px; }
     </style>
 </head>
 <body>
     <div class='receipt-card'>
-        <h2>Abhinaya Institute</h2>
-        <p class='subtitle'>Official Fee Payment Receipt</p>
-        <div class='row'><span>Student Name:</span><strong>$full_name</strong></div>
-        <div class='row'><span>Email:</span><strong>$email</strong></div>
-        <div class='row'><span>Course:</span><strong>$course</strong></div>
-        <div class='row'><span>Transaction ID:</span><strong>$txn_id</strong></div>
-        <div class='row'><span>Date:</span><strong>$date</strong></div>
+        <div class='header'>
+            <h2>Abhinaya Institute</h2>
+            <p>Official Classical Bharatanatyam Fee Receipt</p>
+            <div class='badge'>✓ PAYMENT VERIFIED & RECORDED</div>
+        </div>
+        <div class='row'><span>Student Name:</span><strong>" . htmlspecialchars($full_name) . "</strong></div>
+        <div class='row'><span>Email Address:</span><strong>" . htmlspecialchars($email) . "</strong></div>
+        <div class='row'><span>Enrolled Course:</span><strong>" . htmlspecialchars($course) . "</strong></div>
+        <div class='row'><span>Transaction Ref (UTR):</span><strong>" . htmlspecialchars($utr_number) . "</strong></div>
+        <div class='row'><span>Payment Method:</span><strong>" . htmlspecialchars($payment_method) . "</strong></div>
+        <div class='row'><span>Receipt ID:</span><strong>$txn_id</strong></div>
+        <div class='row'><span>Date & Time:</span><strong>$date</strong></div>
         <div class='row total'><span>Total Amount Paid:</span><span>₹$fee</span></div>
+        <div class='footer-note'>
+            This is a computer-generated verified electronic receipt issued by Abhinaya Institute of Research & Fine Arts.
+        </div>
     </div>
 </body>
 </html>";
 
-    $receipt_filename = $target_dir . "receipt_" . time() . "_" . $txn_id . ".html";
-    file_put_contents($receipt_filename, $receipt_content);
-    
-    $sql = "INSERT INTO payments (full_name, email, course, payment_receipt) 
-            VALUES ('$full_name', '$email', '$course', '$receipt_filename')";
+            $receipt_filename = $target_dir . "receipt_" . time() . "_" . $txn_id . ".html";
+            file_put_contents($receipt_filename, $receipt_content);
+            
+            $sql = "INSERT INTO payments (full_name, email, course, amount, txn_id, utr_number, payment_method, screenshot_path, status, payment_receipt) 
+                    VALUES ('$full_name', '$email', '$course', '$fee', '$txn_id', '$utr_number', '$payment_method', '$screenshot_path', 'Verified', '$receipt_filename')";
 
-    if (mysqli_query($conn, $sql)) {
-        $_SESSION['receipt_data'] = [
-            'name' => $full_name,
-            'course' => $course,
-            'amount' => $fee,
-            'date' => $date,
-            'transaction_id' => $txn_id,
-            'file_path' => $receipt_filename
-        ];
-        header("Location: receipt.php");
-        exit();
-    } else {
-        $message = "<p style='color: #ff6b6b; background: rgba(255,107,107,0.1); padding: 10px; border-radius: 5px; margin-bottom: 20px; text-align: center;'>Error submitting payment: " . mysqli_error($conn) . "</p>";
+            if (mysqli_query($conn, $sql)) {
+                $_SESSION['receipt_data'] = [
+                    'name' => $full_name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'course' => $course,
+                    'amount' => $fee,
+                    'utr_number' => $utr_number,
+                    'payment_method' => $payment_method,
+                    'date' => $date,
+                    'transaction_id' => $txn_id,
+                    'file_path' => $receipt_filename
+                ];
+                header("Location: receipt.php");
+                exit();
+            } else {
+                $error_msg = "Database error processing payment: " . mysqli_error($conn);
+            }
+        }
     }
 }
 ?>
@@ -335,22 +407,40 @@ footer.footer.active {
     <h2 class="section-title" style="text-align:center; font-size:2.8rem; font-family:'Cinzel',serif; color:#d4af37; margin-bottom:15px;">Pay Annual Course Fee</h2>
     <p style="text-align: center; color: #ccc; margin-bottom: 30px;">Select your course, scan to pay instantly via UPI, and receive your verified fee receipt.</p>
     
-    <?php echo $message; ?>
+    <?php if (!empty($error_msg)): ?>
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; text-align: left; display: flex; align-items: center; gap: 12px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.4rem; color: #ef4444;"></i>
+            <div>
+                <strong>Payment Verification Notice</strong>
+                <p style="margin: 3px 0 0; font-size: 0.9rem;"><?php echo htmlspecialchars($error_msg); ?></p>
+            </div>
+        </div>
+    <?php endif; ?>
     
     <div class="form-container" style="background:rgba(255,255,255,.05); backdrop-filter:blur(15px); padding:40px; border-radius:25px; border:1px solid rgba(212,175,55,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
-        <form action="" method="POST" id="fee-form">
+        <form action="" method="POST" id="fee-form" enctype="multipart/form-data">
+            <h3 style="color: #d4af37; font-family: 'Cinzel', serif; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px;">
+                1. Student Information
+            </h3>
+
             <div class="form-group" style="margin-bottom: 20px;">
-                <label for="full_name" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Full Name *</label>
-                <input type="text" id="full_name" name="full_name" required placeholder="Enter student full name">
+                <label for="full_name" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Student Full Name *</label>
+                <input type="text" id="full_name" name="full_name" required placeholder="Enter student full name" value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
             </div>
             
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="email" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Email Address *</label>
-                <input type="email" id="email" name="email" required placeholder="Enter student email address">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="email" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Email Address *</label>
+                    <input type="email" id="email" name="email" required placeholder="student@example.com" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                </div>
+                <div class="form-group">
+                    <label for="phone" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Contact Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+91 XXXXX XXXXX" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
+                </div>
             </div>
             
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="course-select" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Select Course and Annual fees *</label>
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="course-select" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500;">Select Course & Annual Fee *</label>
                 <select id="course-select" name="course" required>
                     <option value="" style="color: black;">-- Select Course & Fee --</option>
                     <option value="Fresh Admission (Beginner) - ₹2000" data-fee="2000" style="color: black;">Fresh Admission (Beginner) – ₹2,000</option>
@@ -367,13 +457,64 @@ footer.footer.active {
             </div>
             
             <div id="qr-container">
-                <h3 style="color: #f8d76d; margin-bottom: 8px; font-family: 'Cinzel', serif;">Scan & Pay Fee</h3>
-                <p style="font-size: 1rem; color: #ddd; margin-bottom: 5px;">Total Amount: <strong style="color: #f8d76d; font-size: 1.3rem;" id="display-fee"></strong></p>
+                <h3 style="color: #f8d76d; margin-bottom: 8px; font-family: 'Cinzel', serif;">2. Transfer Fee via UPI</h3>
+                <p style="font-size: 1rem; color: #ddd; margin-bottom: 10px;">Amount Due: <strong style="color: #f8d76d; font-size: 1.4rem;" id="display-fee"></strong></p>
+                
                 <img id="qr-code-img" src="" alt="UPI QR Code">
-                <p style="font-size: 0.85rem; color: #bbb; margin-top: 10px;">Scan using <strong>Google Pay / PhonePe / Paytm</strong>. The exact course amount will be pre-filled automatically.</p>
+                
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 12px; margin: 15px 0; display: inline-flex; align-items: center; gap: 10px; max-width: 100%; flex-wrap: wrap; justify-content: center;">
+                    <span style="color: #bbb; font-size: 0.9rem;">Official Institute UPI ID:</span>
+                    <strong style="color: #d4af37; font-family: monospace; font-size: 1rem;">sanchisonabolke19@okaxis</strong>
+                    <button type="button" onclick="copyUPI()" style="background: rgba(212,175,55,0.2); color: #d4af37; border: 1px solid #d4af37; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;"><i class="fa fa-copy"></i> Copy</button>
+                </div>
+
+                <div style="margin: 10px 0;">
+                    <a id="upi-intent-link" href="#" style="display: none; background: #22c55e; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 0.95rem; margin-bottom: 10px; inline-block;"><i class="fa-solid fa-mobile-screen"></i> Pay Directly in UPI App</a>
+                </div>
+                
+                <p style="font-size: 0.85rem; color: #94a3b8;">Supported Apps: <strong>Google Pay • PhonePe • Paytm • BHIM • Cred • Bank UPI</strong></p>
+
+                <!-- Step 3: Payment Verification Fields -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; padding: 20px; margin-top: 25px; text-align: left;">
+                    <h4 style="color: #d4af37; font-family: 'Cinzel', serif; font-size: 1.2rem; margin-bottom: 15px;">
+                        3. Enter Payment Verification Details
+                    </h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="payment_method" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500; font-size: 0.9rem;">Payment App Used *</label>
+                            <select id="payment_method" name="payment_method" required style="font-size: 0.95rem;">
+                                <option value="Google Pay" style="color: black;">Google Pay (GPay)</option>
+                                <option value="PhonePe" style="color: black;">PhonePe</option>
+                                <option value="Paytm" style="color: black;">Paytm UPI</option>
+                                <option value="BHIM UPI" style="color: black;">BHIM UPI</option>
+                                <option value="Cred UPI" style="color: black;">Cred UPI</option>
+                                <option value="Amazon Pay" style="color: black;">Amazon Pay</option>
+                                <option value="Bank IMPS/NEFT" style="color: black;">Bank Transfer (IMPS / NEFT)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="utr_number" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500; font-size: 0.9rem;">12-Digit UPI Ref / UTR No *</label>
+                            <input type="text" id="utr_number" name="utr_number" required pattern="[0-9A-Za-z]{8,25}" placeholder="e.g. 423819284920" style="text-transform: uppercase; font-family: monospace; letter-spacing: 1px;">
+                            <small style="color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 4px;">Found in payment details of your UPI app</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="screenshot" style="display: block; margin-bottom: 8px; color: #f8d76d; font-weight: 500; font-size: 0.9rem;">Upload Payment Screenshot (Optional Proof)</label>
+                        <input type="file" id="screenshot" name="screenshot" accept="image/*,application/pdf" style="padding: 10px; font-size: 0.9rem;">
+                    </div>
+
+                    <div style="margin-top: 15px; display: flex; align-items: flex-start; gap: 10px;">
+                        <input type="checkbox" id="confirm_paid" name="confirm_paid" required style="width: 18px; height: 18px; margin-top: 3px; accent-color: #d4af37;">
+                        <label for="confirm_paid" style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; cursor: pointer;">
+                            I confirm that I have transferred the exact fee amount to Abhinaya Institute and verified that the 12-digit UPI UTR number entered above is accurate.
+                        </label>
+                    </div>
+                </div>
             </div>
             
-            <button type="submit" id="submit-btn" class="btn-submit" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #d4af37, #f8d76d); color: black; font-weight: 600; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-family: 'Poppins', sans-serif; font-size: 1.1rem; margin-top: 15px;">Submit Payment</button>
+            <button type="submit" id="submit-btn" class="btn-submit" style="width: 100%; padding: 16px; background: linear-gradient(135deg, #d4af37, #f8d76d); color: black; font-weight: 600; border: none; border-radius: 50px; cursor: pointer; transition: 0.4s; font-family: 'Poppins', sans-serif; font-size: 1.1rem; margin-top: 20px;">Verify & Generate Fee Receipt</button>
         </form>
     </div>
 </section>
@@ -410,37 +551,57 @@ footer.footer.active {
 </footer>
 
 <script>
+function copyUPI() {
+    navigator.clipboard.writeText('sanchisonabolke19@okaxis').then(function() {
+        alert('UPI ID copied to clipboard: sanchisonabolke19@okaxis');
+    }).catch(function() {
+        prompt('Copy UPI ID:', 'sanchisonabolke19@okaxis');
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const courseSelect = document.getElementById('course-select');
     const qrContainer = document.getElementById('qr-container');
     const qrCodeImg = document.getElementById('qr-code-img');
     const displayFee = document.getElementById('display-fee');
     const submitBtn = document.getElementById('submit-btn');
+    const upiIntentLink = document.getElementById('upi-intent-link');
     
     // Business UPI credentials
     const businessUPI = 'sanchisonabolke19@okaxis'; 
-    const businessName = 'Sanchisona Bolke';
+    const businessName = 'Abhinaya Institute of Research and Fine Arts';
 
-    courseSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
+    function updatePaymentDetails() {
+        const selectedOption = courseSelect.options[courseSelect.selectedIndex];
         const fee = selectedOption.getAttribute('data-fee');
         
         if (fee) {
             // Construct UPI URI with embedded amount
-            const upiURI = `upi://pay?pa=${businessUPI}&pn=${encodeURIComponent(businessName)}&am=${fee}&cu=INR`;
+            const upiURI = `upi://pay?pa=${businessUPI}&pn=${encodeURIComponent(businessName)}&am=${fee}&cu=INR&tn=${encodeURIComponent('Course Fee Payment')}`;
             
             // Generate dynamic QR Code
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=210x210&data=${encodeURIComponent(upiURI)}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiURI)}`;
             
             qrCodeImg.src = qrUrl;
             displayFee.textContent = '₹' + Number(fee).toLocaleString('en-IN');
             qrContainer.style.display = 'block';
-            submitBtn.textContent = 'Confirm Payment & Generate Receipt';
+
+            // Show mobile intent link if mobile device
+            if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                upiIntentLink.href = upiURI;
+                upiIntentLink.style.display = 'inline-block';
+            }
         } else {
             qrContainer.style.display = 'none';
-            submitBtn.textContent = 'Submit Payment';
         }
-    });
+    }
+
+    courseSelect.addEventListener('change', updatePaymentDetails);
+    
+    // Run on initial load in case option is already selected
+    if (courseSelect.value) {
+        updatePaymentDetails();
+    }
 });
 </script>
 

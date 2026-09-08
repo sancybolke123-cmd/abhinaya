@@ -37,7 +37,7 @@ if ($authenticated) {
     } catch (Exception $e) {}
 
     try {
-        $stmt = $pdo->query("SELECT id, full_name, email, course, payment_receipt, created_at FROM payments ORDER BY id DESC");
+        $stmt = $pdo->query("SELECT id, full_name, email, course, amount, txn_id, utr_number, payment_method, screenshot_path, status, payment_receipt, created_at FROM payments ORDER BY id DESC");
         $payments = $stmt->fetchAll();
     } catch (Exception $e) {}
 
@@ -208,14 +208,18 @@ if ($authenticated) {
                             <th>ID</th>
                             <th>Student Name</th>
                             <th>Email</th>
-                            <th>Course / Fee Details</th>
+                            <th>Course</th>
+                            <th>Amount</th>
+                            <th>UPI UTR / Ref No</th>
+                            <th>Payment Mode</th>
+                            <th>Proof / Screenshot</th>
                             <th>Receipt File</th>
                             <th>Payment Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($payments)): ?>
-                            <tr><td colspan="6" class="empty-row">No payment records found.</td></tr>
+                            <tr><td colspan="10" class="empty-row">No payment records found.</td></tr>
                         <?php else: ?>
                             <?php foreach ($payments as $p): ?>
                                 <tr>
@@ -223,9 +227,19 @@ if ($authenticated) {
                                     <td><strong><?php echo htmlspecialchars($p['full_name']); ?></strong></td>
                                     <td><?php echo htmlspecialchars($p['email']); ?></td>
                                     <td><span class="badge"><?php echo htmlspecialchars($p['course']); ?></span></td>
+                                    <td><strong style="color: #4ade80;">₹<?php echo htmlspecialchars($p['amount'] ?? '0'); ?></strong></td>
+                                    <td><code style="color: #60a5fa; font-size: 0.85rem; background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 4px;"><?php echo htmlspecialchars($p['utr_number'] ?: 'N/A'); ?></code></td>
+                                    <td><?php echo htmlspecialchars($p['payment_method'] ?? 'UPI'); ?></td>
+                                    <td>
+                                        <?php if (!empty($p['screenshot_path'])): ?>
+                                            <a href="<?php echo htmlspecialchars($p['screenshot_path']); ?>" target="_blank" style="color: #fbbf24; text-decoration: underline;"><i class="fa fa-image"></i> View Proof</a>
+                                        <?php else: ?>
+                                            <span style="color: #64748b;">None</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <?php if (!empty($p['payment_receipt'])): ?>
-                                            <a href="<?php echo htmlspecialchars($p['payment_receipt']); ?>" target="_blank" style="color: #60a5fa; text-decoration: underline;">View Receipt</a>
+                                            <a href="<?php echo htmlspecialchars($p['payment_receipt']); ?>" target="_blank" style="color: #60a5fa; text-decoration: underline;"><i class="fa fa-file-invoice"></i> Receipt</a>
                                         <?php else: ?>
                                             N/A
                                         <?php endif; ?>
